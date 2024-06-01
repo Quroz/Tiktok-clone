@@ -1,11 +1,22 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useUser } from "@clerk/clerk-expo"
 import GlobalApi from "../../utils/GlobalApi"
 
 const HomeScreen = () => {
     const { user } = useUser();
-    const { updateProfileImage } = GlobalApi()
+    const { updateProfileImage, getAllPosts } = GlobalApi()
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        const getAllPostsHandler = async () => {
+            const data = await getAllPosts()
+            setData(data)
+        }
+        getAllPostsHandler()
+    }, [])
+
+    console.log("DAAETE", data)
 
     useEffect(() => {
         const updateProfileImageHandler = async () => {

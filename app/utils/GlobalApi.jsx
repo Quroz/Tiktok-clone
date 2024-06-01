@@ -32,6 +32,15 @@ export default function GlobalApi() {
         }
     }
 
+    const getAllPosts = async () => {
+        const { data, error } = await supabase.from("UserPost").select("*, Auth(username, name, profileImage)").order("id", { ascending: false });
+        if (error) {
+            console.log("Error", error);
+        } else {
+            return data
+        }
+    }
+
     const publishHandler = async (params, userEmail, description) => {
         try {
             const videoUrlRes = await uploadFileToAws(params.video, "video")
@@ -119,5 +128,5 @@ export default function GlobalApi() {
         }
     }
 
-    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage, publishHandler }
+    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage, publishHandler, getAllPosts }
 }
