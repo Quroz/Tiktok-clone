@@ -44,6 +44,11 @@ const PreviewScreen = () => {
                 >
                     {loading ? <ActivityIndicator color="white" /> : <Text style={{ fontFamily: "outfit-bold", fontSize: 14, color: "white" }}>Publish</Text>}
                 </TouchableOpacity>
+                <TouchableOpacity style={{ backgroundColor: "black", borderRadius: 99, padding: 15, paddingHorizontal: 25, marginTop: 10, alignItems: "center" }}
+                    onPress={onPressHandler}
+                >
+                    {loading ? <ActivityIndicator color="white" /> : <Text style={{ fontFamily: "outfit-bold", fontSize: 14, color: "white" }}>Publish</Text>}
+                </TouchableOpacity>
             </View>
         </View>
     )
