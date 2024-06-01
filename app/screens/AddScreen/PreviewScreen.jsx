@@ -10,6 +10,8 @@ const PreviewScreen = () => {
     const params = useRoute().params
     const user = useUser()
 
+    console.log("Params", params)
+
     return (
         <View style={{ flex: 1, backgroundColor: "white" }}>
             <TouchableOpacity style={{ flexDirection: "row", alignItems: "center", position: "absolute", left: 20, top: 40 }}

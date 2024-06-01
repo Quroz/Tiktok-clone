@@ -4,12 +4,15 @@ import * as WebBrowser from "expo-web-browser";
 import { useOAuth } from "@clerk/clerk-expo";
 import { useWarmUpBrowser } from "../../hooks/useWarmUpBrowser"
 import { Video, ResizeMode } from 'expo-av';
+import GlobalApi from '../../utils/GlobalApi';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = () => {
 
     useWarmUpBrowser();
+
+    const { uploadUserToSupabase } = GlobalApi()
 
     const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
     const onPress = React.useCallback(async () => {
@@ -19,6 +22,10 @@ const LoginScreen = () => {
 
             if (createdSessionId) {
                 setActive({ session: createdSessionId });
+                if (signUp?.emailAddress) {
+                    await uploadUserToSupabase(signUp)
+                }
+
             } else {
                 // Use signIn or signUp for next steps such as MFA
             }

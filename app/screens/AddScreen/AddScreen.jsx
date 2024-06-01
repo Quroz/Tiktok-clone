@@ -7,13 +7,12 @@ import GlobalApi from "../../utils/GlobalApi"
 const AddScreen = () => {
 
     const { pickImage } = GlobalApi()
-    const [videoUri, setVideoUri] = useState("")
-    const [thumbnail, setThumbnail] = useState("")
     const navigation = useNavigation()
 
     const uploadHandler = async () => {
-        await pickImage(setVideoUri, setThumbnail)
-        navigation.navigate("Preview", { video: videoUri, thumbnail: thumbnail })
+        const result = await pickImage()
+        if (result)
+            navigation.navigate("Preview", { video: result.videoUri, thumbnail: result.thumbnail })
     }
 
     return (
