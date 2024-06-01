@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import SearchScreen from "../screens/SearchScreen/SearchScreen"
 import AddScreen from '../screens/AddScreen/AddScreen';
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
+import { AddNavigation } from './AddNavigation';
 
 
 const Tab = createBottomTabNavigator();
@@ -23,7 +24,7 @@ export default function TabNavigation() {
                     <Ionicons name="search" size={size} color={color} />
                 )
             }} />
-            <Tab.Screen name="Add" component={AddScreen} options={{
+            <Tab.Screen name="Add" component={AddNavigation} options={{
                 tabBarIcon: ({ color, size }) => (
                     <Ionicons name="add" size={size} color={color} />
                 )
