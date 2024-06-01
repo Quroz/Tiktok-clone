@@ -1,9 +1,12 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { supabase } from "../utils/SupabaseConfig"
+import { s3bucket } from "../utils/AWSConfig"
 
 export default function GlobalApi() {
 
+
+    //Supabase
     const updateProfileImage = async (imageUrl, emailAddress) => {
         const { data, error } = await supabase.from("Auth").update({ "profileImage": imageUrl }).eq("email", emailAddress).is("profileImage", null).select();
         if (error) {
@@ -29,6 +32,40 @@ export default function GlobalApi() {
         }
     }
 
+    const publishHandler = async (params, userEmail, description) => {
+        try {
+            const videoUrlRes = await uploadFileToAws(params.video, "video")
+            const thumbnailRes = await uploadFileToAws(params.thumbnail, "image")
+
+            if (videoUrlRes && thumbnailRes) {
+
+                const { data, error } = await supabase
+                    .from("UserPost")
+                    .insert([
+                        {
+                            videoUrl: videoUrlRes,
+                            thumbnail: thumbnailRes,
+                            description: description,
+                            emailRef: userEmail
+                        }
+                    ]).select()
+                if (error) {
+                    console.log(error)
+                }
+                else {
+                    return data
+                }
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+
+    }
+
+
+
+    //Image and thumbnail
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Videos,
@@ -60,5 +97,27 @@ export default function GlobalApi() {
         return null;
     };
 
-    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage }
+
+
+    //AWS
+    const uploadFileToAws = async (file, type) => {
+        const fileType = file.split(".").pop()
+        const params = {
+            Bucket: "tiktokclone2",
+            Key: `tiktok-${Date.now()}.${fileType}`,
+            Body: await fetch(file).then((res) => res.blob()),
+            ACL: "public-read",
+            ContentType: type == "video" ? `video/${fileType}` : `image/${fileType}`,
+        }
+
+        try {
+            const data = await s3bucket.upload(params).promise()
+            return data?.Location
+        } catch (error) {
+            console.log("Upload Error", error)
+            return null
+        }
+    }
+
+    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage, publishHandler }
 }
