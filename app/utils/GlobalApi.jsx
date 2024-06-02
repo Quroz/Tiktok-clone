@@ -32,8 +32,30 @@ export default function GlobalApi() {
         }
     }
 
+    const likeUnlikePost = async (postIdRef, email, isLike) => {
+        if (!isLike) {
+            const { data, error } = await supabase.from("Likes").insert([{
+                postIdRef: postIdRef,
+                email: email
+            }]).select();
+            if (error) {
+                console.log("Error liking post", error);
+            } else {
+                await getAllPosts();
+            }
+        } else {
+            const { data, error } = await supabase.from("Likes").delete().eq("postIdRef", postIdRef).eq("email", email).select();
+            if (error) {
+                console.log("Error unliking post", error);
+            } else {
+                await getAllPosts();
+            }
+        }
+    }
+
+
     const getAllPosts = async () => {
-        const { data, error } = await supabase.from("UserPost").select("*, Auth(username, name, profileImage)").order("id", { ascending: false });
+        const { data, error } = await supabase.from("UserPost").select("*, Auth(username, name, profileImage), Likes(email, postIdRef)").order("id", { ascending: false });
         if (error) {
             console.log("Error", error);
         } else {
@@ -128,5 +150,5 @@ export default function GlobalApi() {
         }
     }
 
-    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage, publishHandler, getAllPosts }
+    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage, publishHandler, getAllPosts, likeUnlikePost }
 }

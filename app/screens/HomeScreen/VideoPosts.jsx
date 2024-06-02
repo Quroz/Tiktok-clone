@@ -1,6 +1,7 @@
 import { FlatList, Image, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import React from 'react';
 import { useNavigation } from "@react-navigation/native"
+import { Ionicons } from '@expo/vector-icons';
 
 const VideoPosts = ({ data, getAllPostsHandler, loading }) => {
 
@@ -30,6 +31,15 @@ const VideoPosts = ({ data, getAllPostsHandler, loading }) => {
                                     style={{ width: 25, height: 25, borderRadius: 99 }}
                                 />
                                 <Text style={{ color: "white", fontFamily: "outfit" }}>{item?.Auth?.name}</Text>
+                            </View>
+                            <View style={{
+                                alignItems: "center",
+                                fontFamily: "outfit",
+                                flexDirection: "row",
+                                gap: 5
+                            }}>
+                                <Text style={{ color: "white" }}>{item?.Likes.length}</Text>
+                                <Ionicons name="heart-outline" size={24} color="white" />
                             </View>
                         </View>
                     </View>

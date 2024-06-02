@@ -27,6 +27,8 @@ const HomeScreen = () => {
         getAllPostsHandler();
     }, []);
 
+
+    console.log("Daat", data)
     useEffect(() => {
         const updateProfileImageHandler = async () => {
             if (user) {

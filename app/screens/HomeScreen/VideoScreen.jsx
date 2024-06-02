@@ -1,18 +1,18 @@
-import { Dimensions, FlatList, Image, StyleSheet, Text, View } from 'react-native'
-import React, { useState, useEffect, useRef } from 'react'
-import { useRoute } from '@react-navigation/native'
-import GlobalApi from '../../utils/GlobalApi'
+import { Dimensions, FlatList, Image, Text, View, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { useRoute } from '@react-navigation/native';
+import GlobalApi from '../../utils/GlobalApi';
 import { Video, ResizeMode } from 'expo-av';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
 const VideoScreen = () => {
-    const params = useRoute().params
+    const params = useRoute().params;
     const { getAllPosts } = GlobalApi();
-    const [filteredVideos, setFilteredVideos] = useState([])
-    const [data, setData] = useState([])
-    const video = useRef(null);
+    const [filteredVideos, setFilteredVideos] = useState([]);
+    const [data, setData] = useState([]);
     const bottomTabHeight = useBottomTabBarHeight();
-    const [status, setStatus] = useState({});
+    const videoRefs = useRef([]);
 
     const getAllPostsHandler = async () => {
         try {
@@ -27,7 +27,6 @@ const VideoScreen = () => {
         getAllPostsHandler();
     }, []);
 
-
     useEffect(() => {
         if (params?.item?.id) {
             const filtered = data.filter(video => video.id !== params.item.id);
@@ -35,14 +34,70 @@ const VideoScreen = () => {
         }
     }, [data, params]);
 
-
-    return (
-        <FlatList
-            data={filteredVideos}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <View>
+    const renderItem = ({ item, index }) => {
+        return (
+            <View>
+                <View style={{
+                    position: "absolute",
+                    bottom: 50,
+                    left: 20,
+                    zIndex: 20,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    alignItems: "center"
+                }}>
+                    <View>
+                        <View style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 10
+                        }}>
+                            <Image source={{ uri: item.Auth?.profileImage }} style={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: 99
+                            }} />
+                            <Text style={{
+                                fontFamily: "outfit-medium",
+                                fontSize: 17,
+                                color: "white"
+                            }}>{item.Auth?.username}</Text>
+                        </View>
+                        <Text style={{
+                            fontFamily: "outfit-medium",
+                            fontSize: 17,
+                            color: "white",
+                            marginTop: 10
+                        }}>{item.description}</Text>
+                    </View>
+                    <View style={{ marginRight: 40 }}>
+                        <TouchableOpacity style={{
+                            alignItems: "center",
+                            fontFamily: "outfit",
+                            marginTop: -10
+                        }}>
+                            <Ionicons name="heart-outline" size={35} color="white" />
+                            <Text style={{ color: "white" }}>{item?.Likes.length}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{
+                            alignItems: "center",
+                            fontFamily: "outfit",
+                            marginTop: 10
+                        }}>
+                            <Ionicons name="chatbubble-outline" size={35} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{
+                            alignItems: "center",
+                            fontFamily: "outfit",
+                            marginTop: 10
+                        }}>
+                            <Ionicons name="paper-plane-outline" size={35} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
                 <Video
-                    ref={video}
+                    ref={ref => videoRefs.current[index] = ref}
                     style={{
                         width: Dimensions.get("window").width,
                         height: Dimensions.get("window").height - bottomTabHeight
@@ -54,13 +109,21 @@ const VideoScreen = () => {
                     resizeMode={ResizeMode.COVER}
                     isLooping
                     shouldPlay={true}
-                    onPlaybackStatusUpdate={status => setStatus(() => status)}
+                    onPlaybackStatusUpdate={status => { }}
                 />
-            </View>}
+            </View>
+        );
+    };
+
+    return (
+        <FlatList
+            data={filteredVideos}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            windowSize={2}
+            removeClippedSubviews
         />
-    )
+    );
 }
 
-export default VideoScreen
-
-const styles = StyleSheet.create({})
+export default VideoScreen;
