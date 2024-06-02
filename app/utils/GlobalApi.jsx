@@ -41,14 +41,12 @@ export default function GlobalApi() {
             if (error) {
                 console.log("Error liking post", error);
             } else {
-                await getAllPosts();
             }
         } else {
             const { data, error } = await supabase.from("Likes").delete().eq("postIdRef", postIdRef).eq("email", email).select();
             if (error) {
                 console.log("Error unliking post", error);
             } else {
-                await getAllPosts();
             }
         }
     }

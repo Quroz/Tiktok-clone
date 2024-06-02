@@ -5,14 +5,16 @@ import GlobalApi from '../../utils/GlobalApi';
 import { Video, ResizeMode } from 'expo-av';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useUser } from "@clerk/clerk-expo"
 
 const VideoScreen = () => {
     const params = useRoute().params;
-    const { getAllPosts } = GlobalApi();
+    const { getAllPosts, likeUnlikePost } = GlobalApi();
     const [filteredVideos, setFilteredVideos] = useState([]);
     const [data, setData] = useState([]);
     const bottomTabHeight = useBottomTabBarHeight();
     const videoRefs = useRef([]);
+    const { user } = useUser()
 
     const getAllPostsHandler = async () => {
         try {
@@ -33,6 +35,19 @@ const VideoScreen = () => {
             setFilteredVideos([params.item, ...filtered]);
         }
     }, [data, params]);
+
+    const checkIsUserAlreadyLiked = (video) => {
+        if (!video.Likes) {
+            return false;
+        }
+        const result = video.Likes.find(item => item.email === user?.primaryEmailAddress.emailAddress);
+        return result ? true : false;
+    }
+
+    const handleLikeUnlike = async (postId, isLike) => {
+        await likeUnlikePost(postId, user.primaryEmailAddress.emailAddress, isLike);
+        await getAllPostsHandler();
+    }
 
     const renderItem = ({ item, index }) => {
         return (
@@ -72,14 +87,18 @@ const VideoScreen = () => {
                         }}>{item.description}</Text>
                     </View>
                     <View style={{ marginRight: 40 }}>
-                        <TouchableOpacity style={{
-                            alignItems: "center",
-                            fontFamily: "outfit",
-                            marginTop: -10
-                        }}>
-                            <Ionicons name="heart-outline" size={35} color="white" />
-                            <Text style={{ color: "white" }}>{item?.Likes.length}</Text>
-                        </TouchableOpacity>
+
+                        {checkIsUserAlreadyLiked(item) ? (
+                            <TouchableOpacity onPress={() => handleLikeUnlike(item.id, true)} style={{ alignItems: "center", fontFamily: "outfit", marginTop: -10 }}>
+                                <Ionicons name="heart" size={35} color="red" />
+                                <Text style={{ color: "white" }}>{item?.Likes?.length}</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <TouchableOpacity onPress={() => handleLikeUnlike(item.id, false)} style={{ alignItems: "center", fontFamily: "outfit", marginTop: -10 }}>
+                                <Ionicons name="heart-outline" size={35} color="white" />
+                                <Text style={{ color: "white" }}>{item?.Likes?.length}</Text>
+                            </TouchableOpacity>
+                        )}
                         <TouchableOpacity style={{
                             alignItems: "center",
                             fontFamily: "outfit",
