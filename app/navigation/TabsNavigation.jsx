@@ -5,6 +5,7 @@ import SearchScreen from "../screens/SearchScreen/SearchScreen"
 import AddScreen from '../screens/AddScreen/AddScreen';
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import { AddNavigation } from './AddNavigation';
+import { HomeNavigation } from './HomeNavigation';
 
 
 const Tab = createBottomTabNavigator();
@@ -14,7 +15,7 @@ export default function TabNavigation() {
         <Tab.Navigator screenOptions={{
             headerShown: false,
         }}>
-            <Tab.Screen name="Home" component={HomeScreen} options={{
+            <Tab.Screen name="Home" component={HomeNavigation} options={{
                 tabBarIcon: ({ color, size }) => (
                     <Ionicons name="home" size={size} color={color} />
                 )
