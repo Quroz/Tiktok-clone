@@ -32,6 +32,19 @@ export default function GlobalApi() {
         }
     }
 
+    const getUserPosts = async (email) => {
+        const { data, error } = await supabase
+            .from("UserPost").
+            select("*, Auth(username, name, profileImage), Likes(email, postIdRef)")
+            .eq("emailRef", email).order("id", { ascending: false });
+
+        if (error) {
+            console.log("Error", error);
+        } else {
+            return data
+        }
+    };
+
     const likeUnlikePost = async (postIdRef, email, isLike) => {
         if (!isLike) {
             const { data, error } = await supabase.from("Likes").insert([{
@@ -148,5 +161,5 @@ export default function GlobalApi() {
         }
     }
 
-    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage, publishHandler, getAllPosts, likeUnlikePost }
+    return { generateThumbnail, pickImage, uploadUserToSupabase, updateProfileImage, publishHandler, getAllPosts, likeUnlikePost, getUserPosts }
 }

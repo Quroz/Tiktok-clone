@@ -1,27 +1,31 @@
-import { Dimensions, FlatList, Image, Text, View, TouchableOpacity } from 'react-native';
+import { Dimensions, FlatList, Image, Text, View, TouchableOpacity, RefreshControl } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRoute } from '@react-navigation/native';
 import GlobalApi from '../../utils/GlobalApi';
 import { Video, ResizeMode } from 'expo-av';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useUser } from "@clerk/clerk-expo"
+import { useUser } from "@clerk/clerk-expo";
 
 const VideoScreen = () => {
     const params = useRoute().params;
     const { getAllPosts, likeUnlikePost } = GlobalApi();
     const [filteredVideos, setFilteredVideos] = useState([]);
     const [data, setData] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
     const bottomTabHeight = useBottomTabBarHeight();
     const videoRefs = useRef([]);
-    const { user } = useUser()
+    const { user } = useUser();
 
     const getAllPostsHandler = async () => {
         try {
+            setRefreshing(true);
             const data = await getAllPosts();
             setData(data);
+            setRefreshing(false);
         } catch (error) {
             console.error("Failed to fetch posts:", error);
+            setRefreshing(false);
         }
     };
 
@@ -46,7 +50,7 @@ const VideoScreen = () => {
 
     const handleLikeUnlike = async (postId, isLike) => {
         await likeUnlikePost(postId, user.primaryEmailAddress.emailAddress, isLike);
-        await getAllPostsHandler();
+        getAllPostsHandler();  // Uppdatera videolistan efter att ha gillat/ogillat
     }
 
     const renderItem = ({ item, index }) => {
@@ -87,7 +91,6 @@ const VideoScreen = () => {
                         }}>{item.description}</Text>
                     </View>
                     <View style={{ marginRight: 40 }}>
-
                         {checkIsUserAlreadyLiked(item) ? (
                             <TouchableOpacity onPress={() => handleLikeUnlike(item.id, true)} style={{ alignItems: "center", fontFamily: "outfit", marginTop: -10 }}>
                                 <Ionicons name="heart" size={35} color="red" />
@@ -141,6 +144,12 @@ const VideoScreen = () => {
             renderItem={renderItem}
             windowSize={2}
             removeClippedSubviews
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={getAllPostsHandler}
+                />
+            }
         />
     );
 }
